@@ -12,7 +12,9 @@ function setup() {
   drawGrid();
 }
 
-function draw() { drawGrid(); }
+function draw() {
+  // drawGrid(); 
+}
 
 function windowResized() {
   createCanvas(windowWidth, windowHeight);
@@ -29,111 +31,82 @@ function drawGrid() {
   const pointField: number[][] = generatePointField(colums, rows);
 
   //Draw
-  for (let i = 0; i < colums - 1; i++) {
-    for (let j = 0; j < rows - 1; j++) {
-      // A B
-      // D C
-      const pointA: number = pointField[i][j];
-      const pointB: number = pointField[i + 1][j];
-      const pointC: number = pointField[i + 1][j + 1];
-      const pointD: number = pointField[i][j + 1];
+  for (let x = 0; x < colums - 1; x++) {
+    for (let y = 0; y < rows - 1; y++) {
+      // (A) AB (B)
+      // AD      BC
+      // (D) CD (C)
+      const pointAValue: number = pointField[x][y];
+      const pointBValue: number = pointField[x + 1][y];
+      const pointCValue: number = pointField[x + 1][y + 1];
+      const pointDValue: number = pointField[x][y + 1];
+      const segment = getSegment(pointAValue, pointBValue, pointCValue, pointDValue);
 
-      const segment = getSegment(pointA, pointB, pointC, pointD);
+      const pointAB: p5.Vector = createVector(x + 0.5, y);
+      const pointBC: p5.Vector = createVector(x + 1, y + 0.5);
+      const pointCD: p5.Vector = createVector(x + 0.5, y + 1);
+      const pointAD: p5.Vector = createVector(x, y + 0.5);
 
       stroke(255);
       strokeWeight(2);
 
-      let linePointA: p5.Vector = null;
-      let linePointB: p5.Vector = null;
       switch (segment) {
         case 1: {
-          linePointA = createVector(i + 0.5, j);
-          linePointB = createVector(i, j + 0.5);
-          drawLine(linePointA, linePointB);
+          drawLine(pointAB, pointAD);
           break;
         }
         case 2: {
-          linePointA = createVector(i + 0.5, j);
-          linePointB = createVector(i + 1, j + 0.5);
-          drawLine(linePointA, linePointB);
+          drawLine(pointAB, pointBC);
           break;
         }
         case 3: {
-          linePointA = createVector(i, j + 0.5);
-          linePointB = createVector(i + 1, j + 0.5);
-          drawLine(linePointA, linePointB);
+          drawLine(pointAD, pointBC);
           break;
         }
         case 4: {
-          linePointA = createVector(i + 0.5, j + 1);
-          linePointB = createVector(i + 1, j + 0.5);
-          drawLine(linePointA, linePointB);
+          drawLine(pointCD, pointBC);
           break;
         }
         case 5: {
-          linePointA = createVector(i + 0.5, j);
-          linePointB = createVector(i, j + 0.5);
-          drawLine(linePointA, linePointB);
-          linePointA = createVector(i + 0.5, j + 1);
-          linePointB = createVector(i + 1, j + 0.5);
-          drawLine(linePointA, linePointB);
+          drawLine(pointAB, pointAD);
+          drawLine(pointCD, pointBC);
           break;
         }
         case 6: {
-          linePointA = createVector(i + 0.5, j);
-          linePointB = createVector(i + 0.5, j + 1);
-          drawLine(linePointA, linePointB);
+          drawLine(pointAB, pointCD);
           break;
         }
         case 7: {
-          linePointA = createVector(i, j + 0.5);
-          linePointB = createVector(i + 0.5, j + 1);
-          drawLine(linePointA, linePointB);
+          drawLine(pointAD, pointCD);
           break;
         }
         case 8: {
-          linePointA = createVector(i, j + 0.5);
-          linePointB = createVector(i + 0.5, j + 1);
-          drawLine(linePointA, linePointB);
+          drawLine(pointAD, pointCD);
           break;
         }
         case 9: {
-          linePointA = createVector(i + 0.5, j);
-          linePointB = createVector(i + 0.5, j + 1);
-          drawLine(linePointA, linePointB);
+          drawLine(pointAB, pointCD);
           break;
         }
         case 10: {
-          linePointA = createVector(i, j + 0.5);
-          linePointB = createVector(i + 0.5, j + 1);
-          drawLine(linePointA, linePointB);
-          linePointA = createVector(i + 0.5, j);
-          linePointB = createVector(i + 1, j + 0.5);
-          drawLine(linePointA, linePointB);
+          drawLine(pointAB, pointBC);
+          drawLine(pointAD, pointCD);
           break;
         }
         case 11: {
-          linePointA = createVector(i + 0.5, j + 1);
-          linePointB = createVector(i + 1, j + 0.5);
-          drawLine(linePointA, linePointB);
+          drawLine(pointCD, pointBC);
           break;
         }
         case 12: {
-          linePointA = createVector(i, j + 0.5);
-          linePointB = createVector(i + 1, j + 0.5);
-          drawLine(linePointA, linePointB);
+          drawLine(pointAD, pointBC);
           break;
         }
         case 13: {
-          linePointA = createVector(i + 0.5, j);
-          linePointB = createVector(i + 1, j + 0.5);
-          drawLine(linePointA, linePointB);
+          drawLine(pointAB, pointBC);
           break;
         }
         case 14: {
-          linePointA = createVector(i + 0.5, j);
-          linePointB = createVector(i, j + 0.5);
-          drawLine(linePointA, linePointB);
+          drawLine(pointAB, pointAD);
           break;
         }
         // Segment 0 and 15
@@ -142,14 +115,9 @@ function drawGrid() {
         }
       }
 
-      // if (linePointA && linePointB) {
-
-      //   line(linePointA.x * resolution, linePointA.y * resolution, linePointB.x * resolution, linePointB.y * resolution)
-      // }
-
       strokeWeight(7);
-      stroke(pointField[i][j] * 255);
-      point(i * resolution, j * resolution);
+      stroke(pointField[x][y] * 255);
+      point(x * resolution, y * resolution);
     }
   }
 }
