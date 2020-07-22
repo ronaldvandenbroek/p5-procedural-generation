@@ -1,25 +1,12 @@
 /// <reference path="../lib/p5.d.ts" />
-
-// import * as OpenSimplexNoise from "../node_modules/open-simplex-noise/lib/index.js";
-// @ts-ignore
-
-// import * as p5 from "p5";
-
-// import * as OpenSimplexNoise from "open-simplex-noise";
-// const OpenSimplexNoise = require("open-simplex-noise");
-// @ts-ignore
-// import * as p5 from "../node_modules/p5/lib/p5.js";
-// import * as p5 from "p5";
-// const p5 = require("p5").default;
-
-console.log(p5);
-
-const resolution: number = 20;
+/// <reference path="../lib/simplex-noise.d.ts" />
+const resolution: number = 30;
 const seed: number = 1;
 const timeStepSize: number = 0.01;
-const timeStepSpeed: number = 1;
-// const noise2D = OpenSimplexNoise.makeNoise2D(seed);
-//const noise3D = makeNoise3D(seed);
+const framerate: number = 10;
+const noiseScale = 0.10;
+
+const simplexNoise = new SimplexNoise();
 
 let timeStep: number = 0;
 
@@ -28,7 +15,7 @@ const sketch = (p: p5) => {
   p.setup = () => {
     // windowWidth and windowHeigt are global p5 variables
     p.createCanvas(p.windowWidth, p.windowHeight);
-    p.frameRate(timeStepSpeed);
+    p.frameRate(framerate);
 
     p.randomSeed(seed);
 
@@ -36,8 +23,8 @@ const sketch = (p: p5) => {
   };
 
   p.draw = () => {
-    // timeStep = timeStep + timeStepSize;
-    // drawGrid(timeStep);
+    timeStep = timeStep + timeStepSize;
+    drawGrid(timeStep);
   };
 
   p.windowResized = () => {
@@ -60,10 +47,10 @@ const sketch = (p: p5) => {
         // (A) AB (B)
         // AD      BC
         // (D) CD (C)
-        const pointAValue: number = pointField[x][y];
-        const pointBValue: number = pointField[x + 1][y];
-        const pointCValue: number = pointField[x + 1][y + 1];
-        const pointDValue: number = pointField[x][y + 1];
+        const pointAValue: number = p.ceil(pointField[x][y]);
+        const pointBValue: number = p.ceil(pointField[x + 1][y]);
+        const pointCValue: number = p.ceil(pointField[x + 1][y + 1]);
+        const pointDValue: number = p.ceil(pointField[x][y + 1]);
         const segment = getSegment(pointAValue, pointBValue, pointCValue, pointDValue);
 
         const pointAB: p5.Vector = p.createVector(x + 0.5, y);
@@ -71,8 +58,8 @@ const sketch = (p: p5) => {
         const pointCD: p5.Vector = p.createVector(x + 0.5, y + 1);
         const pointAD: p5.Vector = p.createVector(x, y + 0.5);
 
-        p.stroke(255, 255, 255);
-        p.strokeWeight(2);
+        p.stroke(128, 0, 0);
+        p.strokeWeight(5);
 
         switch (segment) {
           case 1: {
@@ -139,8 +126,8 @@ const sketch = (p: p5) => {
           }
         }
 
-        p.strokeWeight(7);
-        const colorValue: number = pointField[x][y] * 255;
+        const colorValue = (pointField[x][y] + 1) * 128;
+        p.strokeWeight(15);
         p.stroke(colorValue, colorValue, colorValue);
         p.point(x * resolution, y * resolution);
       }
@@ -160,9 +147,9 @@ const sketch = (p: p5) => {
     for (let x = 0; x < colums; x++) {
       pointField[x] = [];
       for (let y = 0; y < rows; y++) {
-        // const value = noise2D(x, y);
-        // const value = noise3D(x, y, timeStep);
-        const value = p.ceil(p.random(-1, 1));
+        // const value = p.ceil(simplexNoise.noise2D(x, y));
+        const value = simplexNoise.noise3D(x * noiseScale, y * noiseScale, timeStep);
+        // const value = p.ceil(p.random(-1, 1));
 
         pointField[x][y] = value;
       }
