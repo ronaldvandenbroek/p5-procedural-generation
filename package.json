@@ -19,13 +19,22 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "run-p start-compile start-run",
-    "start-compile": "tsc --watch",
-    "start-run": "browser-sync start --server -w"
+    "start-compile": "rollup -w",
+    "start-run": "browser-sync start --server -w -v"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^14.0.0",
+    "@rollup/plugin-node-resolve": "^8.4.0",
+    "@rollup/plugin-typescript": "^5.0.2",
     "@types/p5": "^0.9.0",
     "browser-sync": "^2.26.7",
     "npm-run-all": "^4.1.5",
+    "rollup": "^2.22.2",
+    "rollup-plugin-typescript2": "^0.27.1",
     "typescript": "^3.8.3"
+  },
+  "dependencies": {
+    "open-simplex-noise": "^2.4.0-pre4",
+    "p5": "^1.1.2"
   }
 }
