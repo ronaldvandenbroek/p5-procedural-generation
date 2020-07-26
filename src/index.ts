@@ -1,10 +1,10 @@
 /// <reference path="../lib/p5.d.ts" />
 /// <reference path="../lib/simplex-noise.d.ts" />
-const resolution: number = 30;
+const resolution: number = 50;
 const seed: number = 1;
 const timeStepSize: number = 0.01;
 const framerate: number = 10;
-const noiseScale = 0.10;
+const noiseScale = 0.30;
 
 const simplexNoise = new SimplexNoise();
 
@@ -47,16 +47,26 @@ const sketch = (p: p5) => {
         // (A) AB (B)
         // AD      BC
         // (D) CD (C)
-        const pointAValue: number = p.ceil(pointField[x][y]);
-        const pointBValue: number = p.ceil(pointField[x + 1][y]);
-        const pointCValue: number = p.ceil(pointField[x + 1][y + 1]);
-        const pointDValue: number = p.ceil(pointField[x][y + 1]);
-        const segment = getSegment(pointAValue, pointBValue, pointCValue, pointDValue);
+        const pointAValue: number = pointField[x][y];
+        const pointBValue: number = pointField[x + 1][y];
+        const pointCValue: number = pointField[x + 1][y + 1];
+        const pointDValue: number = pointField[x][y + 1];
+        const segment = getSegment(p.ceil(pointAValue), p.ceil(pointBValue), p.ceil(pointCValue), p.ceil(pointDValue));
 
-        const pointAB: p5.Vector = p.createVector(x + 0.5, y);
-        const pointBC: p5.Vector = p.createVector(x + 1, y + 0.5);
-        const pointCD: p5.Vector = p.createVector(x + 0.5, y + 1);
-        const pointAD: p5.Vector = p.createVector(x, y + 0.5);
+        // pointValue can be between -1 and 1.
+        // To create a weight between two points
+
+        // Weighted Lerp
+        const pointAB: p5.Vector = p.createVector(p.lerp(x, x + 1, lerpWeight(pointAValue, pointBValue)), y);
+        const pointBC: p5.Vector = p.createVector(x + 1, p.lerp(y, y + 1, lerpWeight(pointBValue, pointCValue)));
+        const pointCD: p5.Vector = p.createVector(p.lerp(x, x + 1, lerpWeight(pointCValue, pointDValue)), y + 1);
+        const pointAD: p5.Vector = p.createVector(x, p.lerp(y, y + 1, lerpWeight(pointAValue, pointDValue)));
+
+        // Centered Absolute
+        // const pointAB: p5.Vector = p.createVector(x + 0.5, y);
+        // const pointBC: p5.Vector = p.createVector(x + 1, y + 0.5);
+        // const pointCD: p5.Vector = p.createVector(x + 0.5, y + 1);
+        // const pointAD: p5.Vector = p.createVector(x, y + 0.5);
 
         p.stroke(128, 0, 0);
         p.strokeWeight(5);
@@ -132,6 +142,13 @@ const sketch = (p: p5) => {
         p.point(x * resolution, y * resolution);
       }
     }
+  }
+
+  function lerpWeight(valueA: number, valueB: number): number {
+    const lerpWeight: number = 1 - ((valueA + valueB + 2) / 4); // Weighted inverted
+    // const lerpWeight: number = (valueA + valueB + 2) / 4; // Weighted
+    // const lerpWeight = 0.5; // Centered
+    return lerpWeight;
   }
 
   function drawLine(linePointA: p5.Vector, linePointB: p5.Vector) {
