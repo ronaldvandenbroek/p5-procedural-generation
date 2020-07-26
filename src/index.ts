@@ -1,16 +1,20 @@
 /// <reference path="../lib/p5.d.ts" />
-/// <reference path="../lib/simplex-noise.d.ts" />
-const resolution: number = 50;
-const seed: number = 1;
-const timeStepSize: number = 0.01;
-const framerate: number = 10;
-const noiseScale = 0.30;
 
-const simplexNoise = new SimplexNoise();
-
-let timeStep: number = 0;
+import { NoiseGenerator, NoiseLayer } from "./noise";
 
 const sketch = (p: p5) => {
+  const framerate: number = 30;
+  const seed: number = 1;
+  const resolution: number = 30;
+  const timeStepSize: number = 0.01;
+
+  const noiseLayers: NoiseLayer[] = [
+    new NoiseLayer(0.02, 1),
+    new NoiseLayer(0.1, 0.5)
+  ];
+
+  let timeStep: number = 0;
+  let noiseGenerator: NoiseGenerator;
 
   p.setup = () => {
     // windowWidth and windowHeigt are global p5 variables
@@ -18,6 +22,8 @@ const sketch = (p: p5) => {
     p.frameRate(framerate);
 
     p.randomSeed(seed);
+
+    noiseGenerator = new NoiseGenerator(noiseLayers);
 
     drawGrid(timeStep);
   };
@@ -165,7 +171,7 @@ const sketch = (p: p5) => {
       pointField[x] = [];
       for (let y = 0; y < rows; y++) {
         // const value = p.ceil(simplexNoise.noise2D(x, y));
-        const value = simplexNoise.noise3D(x * noiseScale, y * noiseScale, timeStep);
+        const value = noiseGenerator.noise3D(x, y, timeStep)
         // const value = p.ceil(p.random(-1, 1));
 
         pointField[x][y] = value;
