@@ -1,55 +1,61 @@
 /// <reference path="../lib/p5.d.ts" />
 
-import { NoiseGenerator, NoiseLayer } from "./noise";
+import NoiseGenerator from './noise-generator';
+import NoiseLayer from './noise-layer';
 
 const sketch = (p: p5) => {
+  const p5: p5 = p;
   const framerate: number = 30;
   const seed: number = 1;
   const resolution: number = 30;
   const timeStepSize: number = 0.01;
 
-  const noiseLayers: NoiseLayer[] = [
-    new NoiseLayer(0.02, 1),
-    new NoiseLayer(0.1, 0.5)
-  ];
+  const noiseLayers: NoiseLayer[] = [new NoiseLayer(0.02, 1), new NoiseLayer(0.1, 0.5)];
 
   let timeStep: number = 0;
   let noiseGenerator: NoiseGenerator;
 
-  p.setup = () => {
-    // windowWidth and windowHeigt are global p5 variables
-    p.createCanvas(p.windowWidth, p.windowHeight);
-    p.frameRate(framerate);
-
-    p.randomSeed(seed);
-
-    noiseGenerator = new NoiseGenerator(noiseLayers);
-
-    drawGrid(timeStep);
-  };
-
-  p.draw = () => {
-    timeStep = timeStep + timeStepSize;
-    drawGrid(timeStep);
-  };
-
-  p.windowResized = () => {
-    p.createCanvas(p.windowWidth, p.windowHeight);
-
-    drawGrid(timeStep);
+  function lerpWeight(valueA: number, valueB: number): number {
+    const weight: number = 1 - (valueA + valueB + 2) / 4; // Weighted inverted
+    // const lerpWeight: number = (valueA + valueB + 2) / 4; // Weighted
+    // const lerpWeight = 0.5; // Centered
+    return weight;
   }
 
-  function drawGrid(timeStep: number) {
-    p.background(128)
+  function drawLine(linePointA: p5.Vector, linePointB: p5.Vector) {
+    p.line(linePointA.x * resolution, linePointA.y * resolution, linePointB.x * resolution, linePointB.y * resolution);
+  }
+
+  function getSegment(pointA: number, pointB: number, pointC: number, pointD: number): number {
+    return pointA * 1 + pointB * 2 + pointC * 4 + pointD * 8;
+  }
+
+  function generatePointField(colums: number, rows: number, step: number): number[][] {
+    const pointField: number[][] = [];
+    for (let x = 0; x < colums; x += 1) {
+      pointField[x] = [];
+      for (let y = 0; y < rows; y += 1) {
+        // const value = p.ceil(simplexNoise.noise2D(x, y));
+        const value = noiseGenerator.noise3D(x, y, step);
+        // const value = p.ceil(p.random(-1, 1));
+
+        pointField[x][y] = value;
+      }
+    }
+    return pointField;
+  }
+
+  function drawGrid(step: number) {
+    p.background(128);
 
     const colums = p.windowWidth / resolution + 1;
     const rows = p.windowHeight / resolution + 1;
 
-    const pointField: number[][] = generatePointField(colums, rows, timeStep);
+    const pointField: number[][] = generatePointField(colums, rows, step);
 
-    //Draw
-    for (let x = 0; x < colums - 1; x++) {
-      for (let y = 0; y < rows - 1; y++) {
+    // Draw
+    for (let x = 0; x < colums - 1; x += 1) {
+      for (let y = 0; y < rows - 1; y += 1) {
         // (A) AB (B)
         // AD      BC
         // (D) CD (C)
@@ -150,37 +156,30 @@ const sketch = (p: p5) => {
     }
   }
 
-  function lerpWeight(valueA: number, valueB: number): number {
-    const lerpWeight: number = 1 - ((valueA + valueB + 2) / 4); // Weighted inverted
-    // const lerpWeight: number = (valueA + valueB + 2) / 4; // Weighted
-    // const lerpWeight = 0.5; // Centered
-    return lerpWeight;
-  }
+  p5.setup = () => {
+    // windowWidth and windowHeigt are global p5 variables
+    p5.createCanvas(p5.windowWidth, p5.windowHeight);
+    p5.frameRate(framerate);
 
-  function drawLine(linePointA: p5.Vector, linePointB: p5.Vector) {
-    p.line(linePointA.x * resolution, linePointA.y * resolution, linePointB.x * resolution, linePointB.y * resolution)
-  }
+    p5.randomSeed(seed);
 
-  function getSegment(pointA: number, pointB: number, pointC: number, pointD: number): number {
-    return pointA * 1 + pointB * 2 + pointC * 4 + pointD * 8;
-  }
+    noiseGenerator = new NoiseGenerator(noiseLayers);
 
-  function generatePointField(colums: number, rows: number, timeStep: number): number[][] {
-    const pointField: number[][] = [];
-    for (let x = 0; x < colums; x++) {
-      pointField[x] = [];
-      for (let y = 0; y < rows; y++) {
-        // const value = p.ceil(simplexNoise.noise2D(x, y));
-        const value = noiseGenerator.noise3D(x, y, timeStep)
-        // const value = p.ceil(p.random(-1, 1));
+    drawGrid(timeStep);
+  };
 
-        pointField[x][y] = value;
-      }
-    }
-    return pointField;
-  }
+  p5.draw = () => {
+    timeStep += timeStepSize;
+    drawGrid(timeStep);
+  };
+
+  p5.windowResized = () => {
+    p5.createCanvas(p5.windowWidth, p5.windowHeight);
+
+    drawGrid(timeStep);
+  };
 };
 
+// eslint-disable-next-line new-cap
 const p5instance: p5 = new p5(sketch);
-
 export default p5instance;

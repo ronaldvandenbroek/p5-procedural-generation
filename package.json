@@ -18,6 +18,8 @@
   "homepage": "https://github.com/ronaldvandenbroek/p5-procedural-generation#readme",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint --ext .js,.ts --ignore-path .gitignore .",
+    "lint:fix": "eslint --ext .js,.ts --ignore-path .gitignore . --fix",
     "start": "run-p start-compile start-run",
     "start-compile": "rollup -c -w",
     "start-run": "browser-sync start --server -w -v"
@@ -27,8 +29,16 @@
     "@rollup/plugin-node-resolve": "^8.4.0",
     "@rollup/plugin-typescript": "^5.0.2",
     "@types/p5": "^0.9.0",
+    "@typescript-eslint/eslint-plugin": "^3.7.0",
+    "@typescript-eslint/parser": "^3.7.0",
     "browser-sync": "^2.26.7",
+    "eslint": "^7.5.0",
+    "eslint-config-airbnb-typescript": "^9.0.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-prettier": "^3.1.4",
     "npm-run-all": "^4.1.5",
+    "prettier": "^2.0.5",
     "rollup": "^2.22.2",
     "rollup-plugin-typescript2": "^0.27.1",
     "typescript": "^3.8.3"

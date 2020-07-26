@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/**/*.ts",
+    ".eslintrc.js",
+    ".prettierrc.js",
+    "rollup.config.js"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

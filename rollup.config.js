@@ -11,10 +11,9 @@ export default {
     resolve(),
     commonjs(),
   ],
-  // external: ['p5', 'open-simplex-noise'],
   output: {
     dir: 'dist',
     format: 'iife',
-    name: 'test',
+    name: 'procedural-generation',
   },
 };
