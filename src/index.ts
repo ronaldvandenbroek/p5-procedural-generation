@@ -2,9 +2,12 @@
 
 import NoiseGenerator from './noise-generator';
 import NoiseLayer from './noise-layer';
+import { calculateSegment, lerpWeight } from './utils-calculation';
+import P5Utils from './utils-p5';
 
 const sketch = (p: p5) => {
   const p5: p5 = p;
+
   const framerate: number = 30;
   const seed: number = 1;
   const resolution: number = 30;
@@ -14,44 +17,15 @@ const sketch = (p: p5) => {
 
   let timeStep: number = 0;
   let noiseGenerator: NoiseGenerator;
-
-  function lerpWeight(valueA: number, valueB: number): number {
-    const weight: number = 1 - (valueA + valueB + 2) / 4; // Weighted inverted
-    // const lerpWeight: number = (valueA + valueB + 2) / 4; // Weighted
-    // const lerpWeight = 0.5; // Centered
-    return weight;
-  }
-
-  function drawLine(linePointA: p5.Vector, linePointB: p5.Vector) {
-    p.line(linePointA.x * resolution, linePointA.y * resolution, linePointB.x * resolution, linePointB.y * resolution);
-  }
-
-  function getSegment(pointA: number, pointB: number, pointC: number, pointD: number): number {
-    return pointA * 1 + pointB * 2 + pointC * 4 + pointD * 8;
-  }
-
-  function generatePointField(colums: number, rows: number, step: number): number[][] {
-    const pointField: number[][] = [];
-    for (let x = 0; x < colums; x += 1) {
-      pointField[x] = [];
-      for (let y = 0; y < rows; y += 1) {
-        // const value = p.ceil(simplexNoise.noise2D(x, y));
-        const value = noiseGenerator.noise3D(x, y, step);
-        // const value = p.ceil(p.random(-1, 1));
-
-        pointField[x][y] = value;
-      }
-    }
-    return pointField;
-  }
+  let p5Utils: P5Utils;
 
   function drawGrid(step: number) {
-    p.background(128);
+    p5.background(128);
 
-    const colums = p.windowWidth / resolution + 1;
-    const rows = p.windowHeight / resolution + 1;
+    const colums = p5.windowWidth / resolution + 1;
+    const rows = p5.windowHeight / resolution + 1;
 
-    const pointField: number[][] = generatePointField(colums, rows, step);
+    const pointField: number[][] = noiseGenerator.generate2DPointField(colums, rows, step);
 
     // Draw
     for (let x = 0; x < colums - 1; x += 1) {
@@ -63,16 +37,22 @@ const sketch = (p: p5) => {
         const pointBValue: number = pointField[x + 1][y];
         const pointCValue: number = pointField[x + 1][y + 1];
         const pointDValue: number = pointField[x][y + 1];
-        const segment = getSegment(p.ceil(pointAValue), p.ceil(pointBValue), p.ceil(pointCValue), p.ceil(pointDValue));
+
+        const segment = calculateSegment(
+          p5.ceil(pointAValue),
+          p5.ceil(pointBValue),
+          p5.ceil(pointCValue),
+          p5.ceil(pointDValue),
+        );
 
         // pointValue can be between -1 and 1.
         // To create a weight between two points
 
         // Weighted Lerp
-        const pointAB: p5.Vector = p.createVector(p.lerp(x, x + 1, lerpWeight(pointAValue, pointBValue)), y);
-        const pointBC: p5.Vector = p.createVector(x + 1, p.lerp(y, y + 1, lerpWeight(pointBValue, pointCValue)));
-        const pointCD: p5.Vector = p.createVector(p.lerp(x, x + 1, lerpWeight(pointCValue, pointDValue)), y + 1);
-        const pointAD: p5.Vector = p.createVector(x, p.lerp(y, y + 1, lerpWeight(pointAValue, pointDValue)));
+        const pointAB: p5.Vector = p5.createVector(p5.lerp(x, x + 1, lerpWeight(pointAValue, pointBValue)), y);
+        const pointBC: p5.Vector = p5.createVector(x + 1, p5.lerp(y, y + 1, lerpWeight(pointBValue, pointCValue)));
+        const pointCD: p5.Vector = p5.createVector(p5.lerp(x, x + 1, lerpWeight(pointCValue, pointDValue)), y + 1);
+        const pointAD: p5.Vector = p5.createVector(x, p5.lerp(y, y + 1, lerpWeight(pointAValue, pointDValue)));
 
         // Centered Absolute
         // const pointAB: p5.Vector = p.createVector(x + 0.5, y);
@@ -80,66 +60,66 @@ const sketch = (p: p5) => {
         // const pointCD: p5.Vector = p.createVector(x + 0.5, y + 1);
         // const pointAD: p5.Vector = p.createVector(x, y + 0.5);
 
-        p.stroke(128, 0, 0);
-        p.strokeWeight(5);
+        p5.stroke(128, 0, 0);
+        p5.strokeWeight(5);
 
         switch (segment) {
           case 1: {
-            drawLine(pointAB, pointAD);
+            p5Utils.drawLine(pointAB, pointAD);
             break;
           }
           case 2: {
-            drawLine(pointAB, pointBC);
+            p5Utils.drawLine(pointAB, pointBC);
             break;
           }
           case 3: {
-            drawLine(pointAD, pointBC);
+            p5Utils.drawLine(pointAD, pointBC);
             break;
           }
           case 4: {
-            drawLine(pointCD, pointBC);
+            p5Utils.drawLine(pointCD, pointBC);
             break;
           }
           case 5: {
-            drawLine(pointAB, pointAD);
-            drawLine(pointCD, pointBC);
+            p5Utils.drawLine(pointAB, pointAD);
+            p5Utils.drawLine(pointCD, pointBC);
             break;
           }
           case 6: {
-            drawLine(pointAB, pointCD);
+            p5Utils.drawLine(pointAB, pointCD);
             break;
           }
           case 7: {
-            drawLine(pointAD, pointCD);
+            p5Utils.drawLine(pointAD, pointCD);
             break;
           }
           case 8: {
-            drawLine(pointAD, pointCD);
+            p5Utils.drawLine(pointAD, pointCD);
             break;
           }
           case 9: {
-            drawLine(pointAB, pointCD);
+            p5Utils.drawLine(pointAB, pointCD);
             break;
           }
           case 10: {
-            drawLine(pointAB, pointBC);
-            drawLine(pointAD, pointCD);
+            p5Utils.drawLine(pointAB, pointBC);
+            p5Utils.drawLine(pointAD, pointCD);
             break;
           }
           case 11: {
-            drawLine(pointCD, pointBC);
+            p5Utils.drawLine(pointCD, pointBC);
             break;
           }
           case 12: {
-            drawLine(pointAD, pointBC);
+            p5Utils.drawLine(pointAD, pointBC);
             break;
           }
           case 13: {
-            drawLine(pointAB, pointBC);
+            p5Utils.drawLine(pointAB, pointBC);
             break;
           }
           case 14: {
-            drawLine(pointAB, pointAD);
+            p5Utils.drawLine(pointAB, pointAD);
             break;
           }
           // Segment 0 and 15
@@ -149,9 +129,9 @@ const sketch = (p: p5) => {
         }
 
         const colorValue = (pointField[x][y] + 1) * 128;
-        p.strokeWeight(15);
-        p.stroke(colorValue, colorValue, colorValue);
-        p.point(x * resolution, y * resolution);
+        p5.strokeWeight(15);
+        p5.stroke(colorValue, colorValue, colorValue);
+        p5.point(x * resolution, y * resolution);
       }
     }
   }
@@ -164,6 +144,7 @@ const sketch = (p: p5) => {
     p5.randomSeed(seed);
 
     noiseGenerator = new NoiseGenerator(noiseLayers);
+    p5Utils = new P5Utils(p5, resolution);
 
     drawGrid(timeStep);
   };

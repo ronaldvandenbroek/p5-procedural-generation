@@ -15,5 +15,6 @@ export default {
     dir: 'dist',
     format: 'iife',
     name: 'procedural-generation',
+    extend: true,
   },
 };
