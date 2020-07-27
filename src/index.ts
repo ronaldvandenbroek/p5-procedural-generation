@@ -9,26 +9,20 @@ const sketch = (p: p5) => {
 
   const framerate: number = 30;
   const seed: number = p5.random(0, 10000);
-  const resolution: number = 40;
+  const resolution: number = 20;
   const timeStepSize: number = 0.01;
   const lowColor: p5.Color = p5.color(0, 64, 128);
   const midColor: p5.Color = p5.color(128, 64, 0);
   const highColor: p5.Color = p5.color(64, 128, 0);
 
-  const noiseLayers: NoiseLayer[] = [new NoiseLayer(0.02, 1, 0.5), new NoiseLayer(0.1, 0.5, 1)];
+  const noiseLayers: NoiseLayer[] = [new NoiseLayer(0.02, 1, 0.5), new NoiseLayer(0.1, 0.3, 1)];
 
   let timeStep: number = 0;
   let noiseGenerator: NoiseGenerator;
   let p5Utils: P5Utils;
 
-  function drawGrid(step: number) {
-    p5.background(128);
 
-    const colums = p5.windowWidth / resolution + 1;
-    const rows = p5.windowHeight / resolution + 1;
-
-    const pointField: number[][] = noiseGenerator.generate2DPointField(colums, rows, step);
-
+  function drawField(colums: number, rows: number, pointField: number[][]): void {
     for (let x = 0; x < colums; x += 1) {
       for (let y = 0; y < rows; y += 1) {
         let colorValue: p5.Color = midColor;
@@ -47,8 +41,9 @@ const sketch = (p: p5) => {
         p5.rect((x - 0.5) * resolution, (y - 0.5) * resolution, resolution, resolution);
       }
     }
+  }
 
-    // Draw
+  function drawBorders(colums: number, rows: number, pointField: number[][]): void {
     for (let x = 0; x < colums - 1; x += 1) {
       for (let y = 0; y < rows - 1; y += 1) {
         // (A) AB (B)
@@ -156,6 +151,18 @@ const sketch = (p: p5) => {
         }
       }
     }
+  }
+
+  function drawGrid(step: number) {
+    p5.background(128);
+
+    const colums = p5.windowWidth / resolution + 1;
+    const rows = p5.windowHeight / resolution + 1;
+
+    const pointField: number[][] = noiseGenerator.generate2DPointField(colums, rows, step);
+
+    drawField(colums, rows, pointField);
+    drawBorders(colums, rows, pointField);
   }
 
   p5.setup = () => {
