@@ -2,7 +2,6 @@
 
 import NoiseGenerator from './noise-generator';
 import NoiseLayer from './noise-layer';
-import { calculateSegment, lerpWeight } from './utils-calculation';
 import P5Utils from './utils-p5';
 
 const sketch = (p: p5) => {
@@ -10,8 +9,11 @@ const sketch = (p: p5) => {
 
   const framerate: number = 30;
   const seed: number = 1;
-  const resolution: number = 30;
+  const resolution: number = 20;
   const timeStepSize: number = 0.01;
+  const lowColor: p5.Color = p5.color(0, 64, 128);
+  const midColor: p5.Color = p5.color(128, 64, 0);
+  const highColor: p5.Color = p5.color(64, 128, 0);
 
   const noiseLayers: NoiseLayer[] = [new NoiseLayer(0.02, 1), new NoiseLayer(0.1, 0.5)];
 
@@ -27,6 +29,21 @@ const sketch = (p: p5) => {
 
     const pointField: number[][] = noiseGenerator.generate2DPointField(colums, rows, step);
 
+    for (let x = 0; x < colums - 1; x += 1) {
+      for (let y = 0; y < rows - 1; y += 1) {
+        let colorValue: p5.Color = midColor;
+        const pointValue: number = pointField[x][y];
+        if (pointValue <= 0) {
+          colorValue = p5.lerpColor(midColor, lowColor, p5.pow(p5.abs(pointValue), 0.3));
+        } else {
+          colorValue = p5.lerpColor(midColor, highColor, p5.pow(p5.abs(pointValue), 0.3));
+        }
+        p5.stroke(colorValue);
+        p5.strokeWeight(15);
+        p5.point(x * resolution, y * resolution);
+      }
+    }
+
     // Draw
     for (let x = 0; x < colums - 1; x += 1) {
       for (let y = 0; y < rows - 1; y += 1) {
@@ -38,7 +55,7 @@ const sketch = (p: p5) => {
         const pointCValue: number = pointField[x + 1][y + 1];
         const pointDValue: number = pointField[x][y + 1];
 
-        const segment = calculateSegment(
+        const segment = p5Utils.calculateSegment(
           p5.ceil(pointAValue),
           p5.ceil(pointBValue),
           p5.ceil(pointCValue),
@@ -49,10 +66,16 @@ const sketch = (p: p5) => {
         // To create a weight between two points
 
         // Weighted Lerp
-        const pointAB: p5.Vector = p5.createVector(p5.lerp(x, x + 1, lerpWeight(pointAValue, pointBValue)), y);
-        const pointBC: p5.Vector = p5.createVector(x + 1, p5.lerp(y, y + 1, lerpWeight(pointBValue, pointCValue)));
-        const pointCD: p5.Vector = p5.createVector(p5.lerp(x, x + 1, lerpWeight(pointCValue, pointDValue)), y + 1);
-        const pointAD: p5.Vector = p5.createVector(x, p5.lerp(y, y + 1, lerpWeight(pointAValue, pointDValue)));
+        const pointAB: p5.Vector = p5.createVector(p5.lerp(x, x + 1, p5Utils.lerpWeight(pointAValue, pointBValue)), y);
+        const pointBC: p5.Vector = p5.createVector(
+          x + 1,
+          p5.lerp(y, y + 1, p5Utils.lerpWeight(pointBValue, pointCValue)),
+        );
+        const pointCD: p5.Vector = p5.createVector(
+          p5.lerp(x, x + 1, p5Utils.lerpWeight(pointCValue, pointDValue)),
+          y + 1,
+        );
+        const pointAD: p5.Vector = p5.createVector(x, p5.lerp(y, y + 1, p5Utils.lerpWeight(pointAValue, pointDValue)));
 
         // Centered Absolute
         // const pointAB: p5.Vector = p.createVector(x + 0.5, y);
@@ -127,11 +150,6 @@ const sketch = (p: p5) => {
             break;
           }
         }
-
-        const colorValue = (pointField[x][y] + 1) * 128;
-        p5.strokeWeight(15);
-        p5.stroke(colorValue, colorValue, colorValue);
-        p5.point(x * resolution, y * resolution);
       }
     }
   }
