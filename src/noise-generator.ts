@@ -39,8 +39,11 @@ export default class NoiseGenerator {
     this.noiseLayers.forEach((noiseLayer) => {
       if (z) {
         noiseValue +=
-          this.simplexNoise.noise3D(x * noiseLayer.scale, y * noiseLayer.scale, z * noiseLayer.scale) *
-          noiseLayer.weight;
+          this.simplexNoise.noise3D(
+            x * noiseLayer.scale,
+            y * noiseLayer.scale,
+            z * noiseLayer.scale * noiseLayer.speed,
+          ) * noiseLayer.weight;
       } else {
         noiseValue += this.simplexNoise.noise2D(x * noiseLayer.scale, y * noiseLayer.scale) * noiseLayer.weight;
       }

@@ -8,14 +8,14 @@ const sketch = (p: p5) => {
   const p5: p5 = p;
 
   const framerate: number = 30;
-  const seed: number = 1;
-  const resolution: number = 20;
+  const seed: number = p5.random(0, 10000);
+  const resolution: number = 40;
   const timeStepSize: number = 0.01;
   const lowColor: p5.Color = p5.color(0, 64, 128);
   const midColor: p5.Color = p5.color(128, 64, 0);
   const highColor: p5.Color = p5.color(64, 128, 0);
 
-  const noiseLayers: NoiseLayer[] = [new NoiseLayer(0.02, 1), new NoiseLayer(0.1, 0.5)];
+  const noiseLayers: NoiseLayer[] = [new NoiseLayer(0.02, 1, 0.5), new NoiseLayer(0.1, 0.5, 1)];
 
   let timeStep: number = 0;
   let noiseGenerator: NoiseGenerator;
@@ -29,8 +29,8 @@ const sketch = (p: p5) => {
 
     const pointField: number[][] = noiseGenerator.generate2DPointField(colums, rows, step);
 
-    for (let x = 0; x < colums - 1; x += 1) {
-      for (let y = 0; y < rows - 1; y += 1) {
+    for (let x = 0; x < colums; x += 1) {
+      for (let y = 0; y < rows; y += 1) {
         let colorValue: p5.Color = midColor;
         const pointValue: number = pointField[x][y];
         if (pointValue <= 0) {
@@ -38,9 +38,13 @@ const sketch = (p: p5) => {
         } else {
           colorValue = p5.lerpColor(midColor, highColor, p5.pow(p5.abs(pointValue), 0.3));
         }
-        p5.stroke(colorValue);
-        p5.strokeWeight(15);
-        p5.point(x * resolution, y * resolution);
+        // p5.stroke(colorValue);
+        // p5.strokeWeight(15);
+        // p5.point(x * resolution, y * resolution);
+
+        p5.strokeWeight(0);
+        p5.fill(colorValue);
+        p5.rect((x - 0.5) * resolution, (y - 0.5) * resolution, resolution, resolution);
       }
     }
 
