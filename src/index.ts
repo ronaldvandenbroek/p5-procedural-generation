@@ -6,9 +6,9 @@ import P5Utils from './utils-p5';
 
 const sketch = (p: p5) => {
   const p5: p5 = p;
+  const seed: number = p5.random(0, 10000);
 
   const framerate: number = 30;
-  const seed: number = p5.random(0, 10000);
   const resolution: number = 20;
   const timeStepSize: number = 0.01;
   const lowColor: p5.Color = p5.color(0, 64, 128);
@@ -20,7 +20,6 @@ const sketch = (p: p5) => {
   let timeStep: number = 0;
   let noiseGenerator: NoiseGenerator;
   let p5Utils: P5Utils;
-
 
   function drawField(colums: number, rows: number, pointField: number[][]): void {
     for (let x = 0; x < colums; x += 1) {
