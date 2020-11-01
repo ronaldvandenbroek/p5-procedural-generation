@@ -9,18 +9,24 @@ import NoiseLayer from './noise-layer';
  * @class NoiseGenerator
  */
 export default class NoiseGenerator {
+  p5: p5;
+
   noiseLayers: NoiseLayer[];
 
   simplexNoise: SimplexNoise;
+
+  sphereRadius: number;
 
   /**
    *Creates an instance of NoiseGenerator.
    * @param {NoiseLayer[]} noiseLayers
    * @memberof NoiseGenerator
    */
-  constructor(noiseLayers: NoiseLayer[]) {
+  constructor(p5: p5, noiseLayers: NoiseLayer[], sphereRadius: number) {
+    this.p5 = p5;
     this.noiseLayers = noiseLayers;
     this.simplexNoise = new SimplexNoise();
+    this.sphereRadius = sphereRadius;
   }
 
   /**
@@ -66,15 +72,43 @@ export default class NoiseGenerator {
    * @memberof NoiseGenerator
    */
   public generate2DPointField(colums: number, rows: number, timeStep?: number): number[][] {
+    this.p5.angleMode(this.p5.DEGREES);
+
+    // range of 180 from -90 to 90
+    const latitudeStep = 180 / rows;
+    // range of 360 from -180 to 180
+    const longitudeStep = 360 / colums;
+
     const pointField: number[][] = [];
-    for (let x = 0; x < colums; x += 1) {
-      pointField[x] = [];
-      for (let y = 0; y < rows; y += 1) {
-        const value = this.noise(x, y, timeStep);
+    for (let column = 0; column < colums; column += 1) {
+      pointField[column] = [];
+      for (let row = 0; row < rows; row += 1) {
+        // Sphere
+        const latitude = 90 - row * latitudeStep;
+        const longitude = 180 - column * longitudeStep;
+        const lambda = this.p5.atan(this.p5.pow(this.sphereRadius, 2) * this.p5.tan(latitude));
+        const x = this.sphereRadius * this.p5.cos(lambda) * this.p5.cos(longitude);
+        const y = this.sphereRadius * this.p5.cos(lambda) * this.p5.sin(longitude);
+        const z = this.sphereRadius * this.p5.sin(lambda);
+        const t = timeStep;
+
+        const value = this.simplexNoise.noise4D(x, y, z, t);
+
+        // Cylinder
+        // const scale: number = 0.166;
+        // const ya: number = y * scale;
+
+        // const height: number = this.p5.sin(x * degreeStep);
+        // const width: number = this.p5.cos(x * degreeStep);
+
+        // const value = this.simplexNoise.noise4D(height, width, ya, timeStep);
+
+        // const value = this.noise(x, y, timeStep);
+
         // const value = p.ceil(simplexNoise.noise2D(x, y));
         // const value = p.ceil(p.random(-1, 1));
 
-        pointField[x][y] = value;
+        pointField[column][row] = value;
       }
     }
     return pointField;

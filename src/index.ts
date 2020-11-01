@@ -10,6 +10,7 @@ const sketch = (p: p5) => {
 
   const framerate: number = 30;
   const resolution: number = 20;
+  const sphereRadius: number = 1.5;
   const timeStepSize: number = 0.01;
   const lowColor: p5.Color = p5.color(0, 64, 128);
   const midColor: p5.Color = p5.color(128, 64, 0);
@@ -171,7 +172,7 @@ const sketch = (p: p5) => {
 
     p5.randomSeed(seed);
 
-    noiseGenerator = new NoiseGenerator(noiseLayers);
+    noiseGenerator = new NoiseGenerator(p5, noiseLayers, sphereRadius);
     p5Utils = new P5Utils(p5, resolution);
 
     drawGrid(timeStep);
