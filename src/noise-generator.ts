@@ -83,16 +83,40 @@ export default class NoiseGenerator {
     for (let column = 0; column < colums; column += 1) {
       pointField[column] = [];
       for (let row = 0; row < rows; row += 1) {
-        // Sphere
-        const latitude = 90 - row * latitudeStep;
-        const longitude = 180 - column * longitudeStep;
-        const lambda = this.p5.atan(this.p5.pow(this.sphereRadius, 2) * this.p5.tan(latitude));
-        const x = this.sphereRadius * this.p5.cos(lambda) * this.p5.cos(longitude);
-        const y = this.sphereRadius * this.p5.cos(lambda) * this.p5.sin(longitude);
-        const z = this.sphereRadius * this.p5.sin(lambda);
-        const t = timeStep;
+        let noiseValue: number = 0;
+        let noiseWeight: number = 0;
 
-        const value = this.simplexNoise.noise4D(x, y, z, t);
+        this.noiseLayers.forEach((noiseLayer) => {
+          const sphereRadius = noiseLayer.scale;
+
+          // Sphere
+          const latitude = 90 - row * latitudeStep;
+          const longitude = 180 - column * longitudeStep;
+          const lambda = this.p5.atan(this.p5.pow(sphereRadius, 2) * this.p5.tan(latitude));
+          const x = sphereRadius * this.p5.cos(lambda) * this.p5.cos(longitude);
+          const y = sphereRadius * this.p5.cos(lambda) * this.p5.sin(longitude);
+          const z = sphereRadius * this.p5.sin(lambda);
+          const t = timeStep * noiseLayer.speed;
+
+          noiseValue += this.simplexNoise.noise4D(x, y, z, t) * noiseLayer.weight;
+
+          noiseWeight += noiseLayer.weight;
+        });
+
+        noiseValue /= noiseWeight;
+
+        pointField[column][row] = noiseValue;
+
+        // Sphere
+        // const latitude = 90 - row * latitudeStep;
+        // const longitude = 180 - column * longitudeStep;
+        // const lambda = this.p5.atan(this.p5.pow(this.sphereRadius, 2) * this.p5.tan(latitude));
+        // const x = this.sphereRadius * this.p5.cos(lambda) * this.p5.cos(longitude);
+        // const y = this.sphereRadius * this.p5.cos(lambda) * this.p5.sin(longitude);
+        // const z = this.sphereRadius * this.p5.sin(lambda);
+        // const t = timeStep;
+
+        // const value = this.simplexNoise.noise4D(x, y, z, t);
 
         // Cylinder
         // const scale: number = 0.166;
@@ -108,7 +132,7 @@ export default class NoiseGenerator {
         // const value = p.ceil(simplexNoise.noise2D(x, y));
         // const value = p.ceil(p.random(-1, 1));
 
-        pointField[column][row] = value;
+        // pointField[column][row] = value;
       }
     }
     return pointField;

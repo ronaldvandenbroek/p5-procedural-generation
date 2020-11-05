@@ -8,15 +8,30 @@ const sketch = (p: p5) => {
   const p5: p5 = p;
   const seed: number = p5.random(0, 10000);
 
-  const framerate: number = 30;
-  const resolution: number = 20;
+  // Capping of the framerate to ensure timescale is constant
+  const framerate: number = 60;
+  // Size of the squares. Is an inverse scale, the smaller the resolution the larger amount of squares
+  const resolution: number = 10;
+  // Radius of the sphere, increasing the radius will increase the jaggedness
   const sphereRadius: number = 1.5;
+  // The amount of change that will occure during each frame
   const timeStepSize: number = 0.01;
+
+  // Colors used to display the map
   const lowColor: p5.Color = p5.color(0, 64, 128);
   const midColor: p5.Color = p5.color(128, 64, 0);
   const highColor: p5.Color = p5.color(64, 128, 0);
+  const borderColor: p5.Color = p5.color(128, 0, 0);
 
-  const noiseLayers: NoiseLayer[] = [new NoiseLayer(0.02, 1, 0.5), new NoiseLayer(0.1, 0.3, 1)];
+  // Noisemap layers that are merged to create the final noise map
+  const noiseLayers: NoiseLayer[] = [
+    // new NoiseLayer(0.02, 1, 0.25),
+    // new NoiseLayer(0.1, 0.3, 1),
+    // new NoiseLayer(1, 0.1, 2),
+    new NoiseLayer(0.8, 3, 0.1),
+    new NoiseLayer(1.5, 1, 0.5),
+    new NoiseLayer(3, 1, 5),
+  ];
 
   let timeStep: number = 0;
   let noiseGenerator: NoiseGenerator;
@@ -82,7 +97,7 @@ const sketch = (p: p5) => {
         // const pointCD: p5.Vector = p.createVector(x + 0.5, y + 1);
         // const pointAD: p5.Vector = p.createVector(x, y + 0.5);
 
-        p5.stroke(128, 0, 0);
+        p5.stroke(borderColor);
         p5.strokeWeight(5);
 
         switch (segment) {
