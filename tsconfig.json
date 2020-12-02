@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es6",
+    "module": "es6",
+    "moduleResolution": "node",
     "removeComments": true,
     "preserveConstEnums": true,
-    "outFile": "./dist/index.js",
-    "sourceRoot": "./src/",
-    "rootDir": "./src/",
-    "sourceMap": true,
-    "noImplicitAny": true,
-    "module": "none"
-  }
+    "noImplicitAny": true
+  },
+  "include": [
+    "src/*"
+  ]
 }
