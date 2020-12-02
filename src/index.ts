@@ -23,6 +23,9 @@ const sketch = (p: p5) => {
   const highColor: p5.Color = p5.color(64, 128, 0);
   const borderColor: p5.Color = p5.color(128, 0, 0);
 
+  const mountainColor: p5.Color = p5.color(128, 128, 128);
+  const snowColor: p5.Color = p5.color(255, 255, 255);
+
   // Noisemap layers that are merged to create the final noise map
   const noiseLayers: NoiseLayer[] = [
     // new NoiseLayer(0.02, 1, 0.25),
@@ -44,6 +47,10 @@ const sketch = (p: p5) => {
         const pointValue: number = pointField[x][y];
         if (pointValue <= 0) {
           colorValue = p5.lerpColor(midColor, lowColor, p5.pow(p5.abs(pointValue), 0.3));
+        } else if (pointValue >= 0.5) {
+          colorValue = p5.lerpColor(mountainColor, snowColor, p5.pow(p5.abs(pointValue), 0.3));
+        } else if (pointValue >= 0.3) {
+          colorValue = mountainColor;
         } else {
           colorValue = p5.lerpColor(midColor, highColor, p5.pow(p5.abs(pointValue), 0.3));
         }

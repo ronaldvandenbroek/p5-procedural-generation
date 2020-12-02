@@ -98,7 +98,7 @@ export default class NoiseGenerator {
           const z = sphereRadius * this.p5.sin(lambda);
           const t = timeStep * noiseLayer.speed;
 
-          noiseValue += this.simplexNoise.noise4D(x, y, z, t) * noiseLayer.weight;
+          noiseValue += (this.simplexNoise.noise4D(x, y, z, t) - 0.1) * noiseLayer.weight;
 
           noiseWeight += noiseLayer.weight;
         });
